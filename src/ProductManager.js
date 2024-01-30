@@ -1,19 +1,16 @@
-import {existSync, promises} from 'fs'
-import { createHash } from 'crypto'
+import { existsSync, promises } from 'fs'
 
-const crypto = require('crypto')
-
-
-
+const path = 'products.json'
 class ProductManager {
-    constructor (path) {
-    this.path= path
+    constructor () {
     }
-    async getProduct(){
+    async getProduct(queryLimit){
+        const {limit} = queryLimit
         try {
-            if(existSync(this.path)){
-                const productsFile = await promises.readFile(this.path,'utf-8')
-                return JSON.parse(productsFile)
+            if(existsSync(path)){
+                const productsFile = await promises.readFile(path,'utf-8')
+                const productsData = JSON.parse(productsFile)
+                return limit ? productsData.slice(0, +limit) : productsData
             }else {
                 return []
             }
@@ -23,10 +20,10 @@ class ProductManager {
     }  
     async addproduct(product) {
         try {
-            const productos = await this.getProduct()
+            const productos = await this.getProduct({})
             const { title, description, price, thumbnail, code, stock } = product
         if(!title || !description || !price || !thumbnail || !code || !stock){
-            console.log('VUelva a intentar');
+            console.log('Vuelva a intentar');
             return 
         }
         let id 
@@ -36,16 +33,16 @@ class ProductManager {
             id = productos[productos.length-1].id + 1 
         }
         productos.push({id,...product})
-        await fs.promises.writeFile(this.path, JSON.stringify(productos))
+        await promises.writeFile(path, JSON.stringify(productos))
         } catch (error) {
             console.log('no se puede añadir un producto en este momento');
         }
-
+    
     }
     async getProductById(idProducto){
         try {
-            const productos= await this.getProduct()
-            const producto= product.find(u=>u.id===idProducto)
+            const productos= await this.getProduct({})
+            const producto= productos.find(u=>u.id===idProducto)
             if(!productos){
                 return 'No se ha encontrado el producto'
             } else {
@@ -57,9 +54,9 @@ class ProductManager {
     }
     async deleteProduct(idProducto) {
         try {
-            const productos= await this.getProduct()
+            const productos= await this.getProduct({})
             const productActualizado= productos.filter(u=>u.id===idProducto)
-            await fs.promises.readFile(this.path, JSON.stringify(productActualizado))
+            await promises.readFile(path, JSON.stringify(productActualizado))
         } catch (error) {
             return error
         }
@@ -67,14 +64,14 @@ class ProductManager {
 
     async updateProduct(idProducto, campo){
         try {
-            const productos= await this.getProduct()
+            const productos= await this.getProduct({})
             const elemento = productos.findIndex((p) => p.id === idProducto)
             if(elemento === -1){
                 return -1
             }
             const product = productos[elemento]
             productos[elemento] = [{...product, ...campo}]
-            await fs.promises.writeFile(this.path, JSON.stringify(productos))
+            await promises.writeFile(path, JSON.stringify(productos))
             return 1
         } catch (error) {
             return 'No se pudo actualizar el producto'
@@ -83,7 +80,7 @@ class ProductManager {
 
     }
 
-const Producto1= {
+const Producto1 = {
     title: 'producto prueba',
     description:'Este es un producto prueba',
     price:200,
@@ -91,24 +88,7 @@ const Producto1= {
     code:'abc123',
     stock:25
 }
-const Producto2= {
-    title: 'producto prueba',
-    description:'Este es un producto prueba',
-    price:200,
-    thumbnail:'Sin imagen',
-    code:'abc123',
-    stock:25
-}
-
-const Producto3= {
-    title: 'producto prueba',
-    description:'Este es un producto prueba',
-    price:200,
-    thumbnail:'Sin imagen',
-    code:'abc123',
-    stock:25
-}
-const Producto4= {
+const Producto2 = {
     title: 'producto prueba',
     description:'Este es un producto prueba',
     price:200,
@@ -117,8 +97,24 @@ const Producto4= {
     stock:25
 }
 
+const Producto3 = {
+    title: 'producto prueba',
+    description:'Este es un producto prueba',
+    price:200,
+    thumbnail:'Sin imagen',
+    code:'abc123',
+    stock:25
+}
+const Producto4 = {
+    title: 'producto prueba',
+    description:'Este es un producto prueba',
+    price:200,
+    thumbnail:'Sin imagen',
+    code:'abc123',
+    stock:25
+}
 
-    async function test () {
+/*     async function test () {
         const Producto =  new ProductManager('productos.json')
         await Producto.getProduct()
         await Producto.addproduct(Producto1, Producto2, Producto3, Producto4)
@@ -127,6 +123,6 @@ const Producto4= {
         await Producto.updateProduct(4)
         await Producto.deleteProduct(3)
     }
-    await test()
+    await test() */
 
     console.log(null || 'string');
