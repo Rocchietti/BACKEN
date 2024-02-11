@@ -25,13 +25,15 @@ class ProductManager {
             console.log('Vuelva a intentar');
             return 
         }
+        let status = true
         let id 
         if(!productos.length){
             id = 1
         }else {
             id = productos[productos.length-1].id + 1 
         }
-        productos.push({id,...product})
+        const newProduct = {id, ... product, ... status}
+        productos.push(newProduct)
         await promises.writeFile(path, JSON.stringify(productos))
         } catch (error) {
             console.log('no se puede añadir un producto en este momento');
@@ -41,43 +43,43 @@ class ProductManager {
     async getProductById(idProducto){
         try {
             const productos= await this.getProduct({})
-            const producto= productos.find(u=>u.id===idProducto)
-            if(!productos){
-                return 'No se ha encontrado el producto'
-            } else {
-                return producto
-            }
+            const producto= productos.find(p=>p.id===idProducto)
+            return producto;
         } catch (error) {
             return 'lo sentimos, no pudimos continuar con su busqueda'
         }
     }
     async deleteProduct(idProducto) {
+   try {
+             const productos= await this.getProduct({})
+             const product = productos.find(p=> p.id==id)
+             if(product){
+                 const productActualizado= productos.filter(p=>p.id===idProducto)
+                 await promises.readFile(path, JSON.stringify(productActualizado))
+         }
+   }    catch (error) {
+        return error
+   }
+}
+    async updateProduct(idProducto, obj){
         try {
             const productos= await this.getProduct({})
-            const productActualizado= productos.filter(u=>u.id===idProducto)
-            await promises.readFile(path, JSON.stringify(productActualizado))
-        } catch (error) {
-            return error
-        }
-    }
-    async updateProduct(idProducto, campo){
-        try {
-            const productos= await this.getProduct({})
-            const elemento = productos.findIndex((p) => p.id === idProducto)
-            if(elemento === -1){
-                return -1
+            const index = productos.findIndex(p => p.id === idProducto)
+            if(index === -1 ){
+                return null;
             }
-            const product = productos[elemento]
-            productos[elemento] = [{...product, ...campo}]
+            const updateProdu = {...productos[index], ...obj}
+            productos.splice(index, 1, updateProdu)
             await promises.writeFile(path, JSON.stringify(productos))
-            return 1
+            return updateProdu
         } catch (error) {
             return 'No se pudo actualizar el producto'
         }
     }
     }
+
 const Producto1= {
-    title: 'producto prueba',
+    title: 'Tarjeta de video',
     description:'Este es un producto prueba',
     price:2030,
     thumbnail:'Sin imagen',
@@ -85,7 +87,7 @@ const Producto1= {
     stock:25
 }
 const Producto2= {
-    title: 'producto prueba',
+    title: 'Memorias RAM',
     description:'Este es un producto prueba',
     price:2100,
     thumbnail:'Sin imagen',
@@ -93,7 +95,7 @@ const Producto2= {
     stock:25
 }
 const Producto3= {
-    title: 'producto prueba',
+    title: 'Reloj',
     description:'Este es un producto prueba',
     price:900,
     thumbnail:'Sin imagen',
@@ -101,7 +103,7 @@ const Producto3= {
     stock:25
 }
 const Producto4= {
-    title: 'gloria',
+    title: 'HDD/SDD',
     description:'Este es un producto prueba',
     price:700,
     thumbnail:'Sin imagen',
@@ -141,7 +143,7 @@ const Producto8= {
     stock:25
 }
 const Producto9= {
-    title: 'medife',
+    title: 'monitor',
     description:'Este es un producto prueba',
     price:2097,
     thumbnail:'Sin imagen',
@@ -149,7 +151,7 @@ const Producto9= {
     stock:25
 }
 const Producto10= {
-    title: 'salud',
+    title: 'auriculares',
     description:'Este es un producto prueba',
     price:208,
     thumbnail:'Sin imagen',
@@ -157,7 +159,7 @@ const Producto10= {
     stock:25
 }
 const Producto11= {
-    title: 'sancor',
+    title: 'procesadores',
     description:'Este es un producto prueba',
     price:22,
     thumbnail:'Sin imagen',
@@ -165,8 +167,8 @@ const Producto11= {
     stock:25
 }
 
-
-/*     async function test () { 
+/* 
+     async function test () { 
         const Producto =  new ProductManager('productos.json') 
         await Producto.addproduct(Producto1)
         await Producto.addproduct(Producto2)
@@ -180,7 +182,6 @@ const Producto11= {
         await Producto.addproduct(Producto10)
         await Producto.addproduct(Producto11)
     }
-test()
-*/
-
+test() */
+ 
 export const Producto = new ProductManager()
