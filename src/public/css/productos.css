@@ -1,0 +1,20 @@
+p,img,h4,h1{
+    display: flex;
+    justify-content: left
+}
+.Listado,p,img,h4,h1{
+    color: red;
+    font-size: 45px;
+    text-align: center;
+}
+.tituloProducto{
+    margin: 0 auto;
+    color: blueviolet;
+    font-size: '50px';
+}
+.imgProducto{
+    margin: 0 auto;
+    height: 300px;
+    width: 350px;
+}
+

@@ -3,13 +3,12 @@ const path = 'products.json'
 class ProductManager {
     constructor () {
     }
-    async getProduct(queryLimit){
-        const {limit} = queryLimit
+    async getProduct(){
         try {
             if(existsSync(path)){
                 const productsFile = await promises.readFile(path,'utf-8')
                 const productsData = JSON.parse(productsFile)
-                return limit ? productsData.slice(0, +limit) : productsData
+                return productsData
             }else {
                 return []
             }
@@ -50,17 +49,18 @@ class ProductManager {
         }
     }
     async deleteProduct(idProducto) {
-   try {
-             const productos= await this.getProduct({})
-             const product = productos.find(p=> p.id==id)
-             if(product){
-                 const productActualizado= productos.filter(p=>p.id===idProducto)
-                 await promises.readFile(path, JSON.stringify(productActualizado))
-         }
-   }    catch (error) {
-        return error
-   }
-}
+        try {
+            const productos= await this.getProduct({})
+            const product = productos.find(p=> p.id==id)
+            if(product){
+                const productActualizado= productos.filter(p=>p.id===idProducto)
+                await promises.readFile(path, JSON.stringify(productActualizado))
+            }
+            return error
+        } catch (error) {
+            return error
+        }
+    }
     async updateProduct(idProducto, obj){
         try {
             const productos= await this.getProduct({})
@@ -77,7 +77,6 @@ class ProductManager {
         }
     }
     }
-
 const Producto1= {
     title: 'Tarjeta de video',
     description:'Este es un producto prueba',
@@ -111,7 +110,7 @@ const Producto4= {
     stock:25
 }
 const Producto5= {
-    title: 'exito',
+    title: 'Mother',
     description:'Este es un producto prueba',
     price:500,
     thumbnail:'Sin imagen',
@@ -119,7 +118,7 @@ const Producto5= {
     stock:25
 }
 const Producto6= {
-    title: 'rivadavia',
+    title: 'Ventilador',
     description:'Este es un producto prueba',
     price:400,
     thumbnail:'Sin imagen',
@@ -127,7 +126,7 @@ const Producto6= {
     stock:25
 }
 const Producto7= {
-    title: 'la caja',
+    title: 'teclado',
     description:'Este es un producto prueba',
     price:365,
     thumbnail:'Sin imagen',
@@ -135,7 +134,7 @@ const Producto7= {
     stock:25
 }
 const Producto8= {
-    title: 'san cristobal',
+    title: 'mouse',
     description:'Este es un producto prueba',
     price:245,
     thumbnail:'Sin imagen',
@@ -166,7 +165,6 @@ const Producto11= {
     code:'abc123',
     stock:25
 }
-
 /* 
      async function test () { 
         const Producto =  new ProductManager('productos.json') 

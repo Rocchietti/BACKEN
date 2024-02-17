@@ -1,0 +1,23 @@
+<H2>add Product</H2>
+
+<form id="formAdd">
+Title:<input type="string" name="title" id="title">
+Description:<input type="string" name="description" id="description">
+Price:<input type="number" name="price" id="price">
+Code:<input type="string" name="code" id="code">
+Stock:<input type="number" name="stock" id="stock">
+Category:<input type="string" name="category" id="category">
+<input type="submit" value="SEND">
+</form>
+<hr>
+<form id="formDelete">
+<h2>delete Product</h2>
+Id:<input type="number" name="Id" id="idDelete" />
+<input type="submit" value="DELETE"/>
+</form>
+<hr>
+<h2>Lista de productos</h2>
+<div id="divRealTimeProduct">
+</div>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/realTime.js"></script>

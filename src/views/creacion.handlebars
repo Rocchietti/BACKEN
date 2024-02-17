@@ -1,0 +1,11 @@
+
+<h1 class="Listado">Listado de Productos:</h1>
+
+{{#each productos}}
+<h1 class="tituloProducto">{{this.title}}</h1>
+<p class="parrafoProducto">{{this.description}}</p>
+<img class="imgProducto" src="{{this.thumbnail}}" alt="">
+<h4 class="h4Producto">${{this.price}}</h4>
+{{else}}
+<h3>No hay ningún producto expuesto a la venta</h3>
+{{/each}} 
