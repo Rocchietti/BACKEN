@@ -3,7 +3,7 @@ const path = 'products.json'
 class ProductManager {
     constructor () {
     }
-    async getProduct(){
+    async getProduct(query){
         try {
             if(existsSync(path)){
                 const productsFile = await promises.readFile(path,'utf-8')
@@ -18,9 +18,9 @@ class ProductManager {
     }  
     async addproduct(product) {
         try {
-            const productos = await this.getProduct({})
-            const { title, description, price, thumbnail, code, stock } = product
-        if(!title || !description || !price || !thumbnail || !code || !stock){
+            const productos = await this.getProduct()
+            const { title, description, price, code, stock } = product
+        if(!title || !description || !price || !code || !stock){
             console.log('Vuelva a intentar');
             return 
         }
@@ -41,7 +41,7 @@ class ProductManager {
     }
     async getProductById(idProducto){
         try {
-            const productos= await this.getProduct({})
+            const productos= await this.getProduct()
             const producto= productos.find(p=>p.id===idProducto)
             return producto;
         } catch (error) {
@@ -50,20 +50,21 @@ class ProductManager {
     }
     async deleteProduct(idProducto) {
         try {
-            const productos= await this.getProduct({})
-            const product = productos.find(p=> p.id==id)
+            const productos= await this.getProduct()
+            const product = productos.find(p=> p.id==idProducto)
             if(product){
-                const productActualizado= productos.filter(p=>p.id===idProducto)
-                await promises.readFile(path, JSON.stringify(productActualizado))
+                const productActualizado= productos.filter(p=>p.id!=idProducto)
+                await promises.writeFile(path, JSON.stringify(productActualizado))
             }
-            return error
+            return product;
         } catch (error) {
-            return error
+            return console.log(error.message);
         }
     }
+
     async updateProduct(idProducto, obj){
         try {
-            const productos= await this.getProduct({})
+            const productos= await this.getProduct()
             const index = productos.findIndex(p => p.id === idProducto)
             if(index === -1 ){
                 return null;

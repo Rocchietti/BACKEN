@@ -1,5 +1,4 @@
 const socketClient = io();
-
 const formAdd = document.getElementById("formAdd");
 const addTitle = document.getElementById("title");
 const addDescription= document.getElementById("description");   
@@ -40,7 +39,6 @@ socketClient.on("products", (products) => {
   }
     socketClient.emit("addProduct", product)
 }
-
 socketClient.on("productUpdate", (productosAds) => {
   listaDeProductosActualizados(productosAds)
  })
@@ -49,6 +47,7 @@ formDelete.onsubmit = (e)=>{
     const idDelete = IdDelete.value;
     socketClient.emit("deleteProduct", idDelete);
   };
+
   socketClient.on("productDelete", (products) => {
-    listaDeProductosActualizados(products)
+    listaDeProductosActualizados({products})
   });
