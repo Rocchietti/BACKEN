@@ -1,53 +1,58 @@
-const socketClient = io();
-const formAdd = document.getElementById("formAdd");
-const addTitle = document.getElementById("title");
-const addDescription= document.getElementById("description");   
-const addPrice= document.getElementById("price");
-const addCode= document.getElementById("code");
-const addStock= document.getElementById("stock");
-const addCategory= document.getElementById("category");
-const formDelete = document.getElementById("formDelete");
-const IdDelete = document.getElementById("idDelete");
-const RealTime = document.getElementById("divRealTimeProduct")
-const listaDeProductosActualizados = (producto) => {
-    let divRealTimeProduct = RealTime;
-    let html = "";
-    producto.forEach((product) => {
-      html += ` 
-        <p>id: ${product.id}</p>
-        <h3>titulo: ${product.title}</h3>
-        <p>descripcion: ${product.description}</p>
-        <p>precio: ${product.price}</p>
-        <p>codigo: ${product.code}</p>
-        <p>stock: ${product.stock}</p>
-        <hr>
-        `;
-    divRealTimeProduct.innerHTML = html;
-})};
-socketClient.on("products", (products) => {
-  listaDeProductosActualizados(products);
+const socket = io();
+socket.on('productosActualizados', (productos) => {
+    const listaDeProductos = document.getElementById('listaDeProductos');
+    listaDeProductos.innerHTML = ''; 
+    console.log(productos);
+    productos.forEach((producto) => {
+        const li = document.createElement('li');
+        li.textContent = `
+        TITLE: ${producto.title}
+        DESCRIPTION: ${producto.description}
+        PRICE: $${producto.price}
+        STOCK: ${producto.stock}
+        CODE: ${producto.code}
+        CATEGORY: ${producto.category};`       
+        listaDeProductos.appendChild(li);
+    });
 });
-  formAdd.onsubmit = (e) => {
+const formAgregar = document.getElementById('formAgregar');
+const formEliminar = document.getElementById('formEliminar');
+formAgregar.onsubmit = (e) => {
     e.preventDefault();
-    const product = {
-    title:addTitle.value,
-    description: addDescription.value,
-    price: addPrice.value,
-    code:addCode.value,
-    stock:addStock.value,
-    category:addCategory.value,
-  }
-    socketClient.emit("addProduct", product)
-}
-socketClient.on("productUpdate", (productosAds) => {
-  listaDeProductosActualizados(productosAds)
- })
-formDelete.onsubmit = (e)=>{
+    const formData = new FormData(formAgregar);
+    const nuevoProducto = {};
+    formData.forEach((value, key) => {
+        nuevoProducto[key] = value;
+    });
+    Swal.fire({
+        position: 'top-end',
+        icon: 'success',
+        title: 'Product added',
+        showConfirmButton: false,
+        timer: 1500
+    })
+    socket.emit('agregado', nuevoProducto);
+    formAgregar.reset();
+};
+formEliminar.onsubmit = (e) => {
     e.preventDefault();
-    const idDelete = IdDelete.value;
-    socketClient.emit("deleteProduct", idDelete);
-  };
-
-  socketClient.on("productDelete", (products) => {
-    listaDeProductosActualizados({products})
-  });
+    Swal.fire({
+        title: 'Are you sure?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const id = document.getElementById('id').value;
+            socket.emit('eliminar', +id);
+            formEliminar.reset();
+            Swal.fire(
+                'Deleted!',
+                'Your file has been deleted.',
+                'success'
+            );
+        }
+    });
+};

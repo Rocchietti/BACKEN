@@ -1,27 +1,21 @@
 import { chatModel } from "../models/chat.model.js";
 
-class chatManager {
+class MessagesManager {
     async findAll() {
-        const response = await chatModel.findAll().lean()
-        return response
+      const response = await chatModel.find().lean();
+      return response;
     }
     async findById(id) {
-        const response = await chatModel.findById(id)
+        const response = await chatModel.findById(id);
         return response
     }
-    async createOne(obj){
-        const response = await chatModel.create(obj)
-        return response
-    }
-    async updateOne(id,obj) {
-        const response = await chatModel.updateOne({_id:id}, obj)
-        return response
+    async createOne(message) {
+      const response = await chatModel.create(message);
+      return response;
     }
     async deleteOne(id){
-        const response = await chatModel.findByIdAndDelete({_id:id})
-        return response
+        const response = await chatModel.deleteOne({ _id: id });
+        return response;
     }
-}
-
-
-export const chatMana = new chatManager()
+  }
+  export const chatMana = new MessagesManager();
