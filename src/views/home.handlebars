@@ -1,7 +1,18 @@
-{{!-- {{#each products}}
-  <h2>{{title}}</h2>
-  <p>{{description}}</p>
-  <p> {{price}}</p>
-  <p> {{code}}</p>
-  <p> {{id}}</p>
-{{/each}} --}}
+<div class="userDiv">
+        <h1>WELCOME {{user.name}}</h1>
+        <h4>Your email is: {{user.email}} </h4>
+        <button><a href="/api/session/signout">SIGN OUT</a></button>
+    </div>
+{{#each products.docs}}
+  <h2>Name: {{title}}</h2>
+  <p>Description: {{description}}</p>
+  <p>Price $:{{price}}</p>
+  <p>Code: {{code}}</p>
+  <p>Id Product: {{_id}}</p>
+  <button class="add-to-cart-btn" data-product-id="{{_id}}" onclick="addProductToCart({{_id}})">Add to Cart</button>
+{{/each}}
+</div>
+  <div class="pagination">
+        <button type= "button"id="prev-page"><a href="/api/views?limit=10&page={{products.prevPage}}"></a>Previous Page</button>
+        <button type="button" id="next-page"><a href="/api/views?limit=10&page={{products.nextPage}}"></a>Next Page</button>
+    </div>

@@ -6,24 +6,23 @@ class ProductManager {
             page: parseInt(page),
             limit: parseInt(limit),
             sort: parseInt(orders) === 1 ? 'price' : '-price',
+            lean:true
         };
-        
+
         const response = await productsModel.paginate(filter, options);
         const info = {
             status: response.docs ? "success" : "error",
             results: response.docs,
             pages: response.totalPages,
-            nextPage: response.page === response.totalPages ? null : response.page + 1,
-            prevPage: response.page === 1 ? null : response.page - 1,
             next: response.hasNextPage
-                ? `http://localhost:8080/api/products?page=${response.page + 1}`
+                ? `http://localhost:8080/?page=${response.nextPage}`
                 : null,
             prev: response.hasPrevPage
-                ? `http://localhost:8080/api/products?page=${response.page - 1}`
+                ? `http://localhost:8080/?page=${response.prevPage}`
                 : null,
         };
-        console.log(info);
-        return {info};
+        console.log(response);
+        return response;
     }
         async findById(id) {
             const response = await productsModel.findById(id);

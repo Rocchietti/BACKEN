@@ -3,78 +3,85 @@ import cartRouter from './routes/carts.router.js';
 import productsRouter from './routes/products.router.js'
 import viewsRouter from './routes/views.router.js'
 import sessionRouter from './routes/session.router.js'
+import cookieRouter from './routes/cookies.router.js'
 import {__dirname } from './utils.js'
 import { engine } from 'express-handlebars';
 import { Server } from 'socket.io';
 import { cartManager } from './dao/manager/cartsmana.js';
 import { ProduManager } from './dao/manager/productmana.js';
 import { chatMana } from './dao/manager/chatmana.js';
+import usersRouter from './routes/users.router.js'
+import cookieParser from 'cookie-parser';
+import session from 'express-session';
+import MongoStore from 'connect-mongo';
 
 //db
 import './db/configDB.js'
 
 const PORT = 8080;
+
+//express
 const app = express()
 app.use(express.urlencoded({ extended:true }));
 app.use(express.json());
+//handlebars
 app.engine("handlebars", engine())
 app.set("views",  __dirname+"/views");
 app.set("view engine","handlebars");
+//carpeta public
 app.use(express.static(__dirname+"/public"))
+//cookie
+app.use(cookieParser("SecretCookie"))
+//session
+const URI = "mongodb+srv://lucasrocchietti1:coderhouse@cluster0.wfh2e2r.mongodb.net/dbCoder?retryWrites=true&w=majority"
+app.use(session({
+    store: new MongoStore({
+        mongoUrl: URI,
+    }),
+    secret: "secretSessions", 
+    cookie: {maxAge: 60000}
+}
+)
+)
 //req ---> params, query, body
+
 app.use("/api/productos", productsRouter);
 app.use("/api/carts", cartRouter);
-app.use("/api/views", viewsRouter);
+app.use("/", viewsRouter);
 app.use("/api/session", sessionRouter);
-
+app.use("/api/users", usersRouter)
+app.use('/api/cookies', cookieRouter)
 
 
 const httpServer = app.listen(PORT, () => {
     console.log(`Escuchando al puerto ${PORT}`);
 })
-const socketServer = new Server (httpServer) 
 
-socketServer.on('connection', async (socket) => {
-    console.log(`cliente conectado ${socket.id}`);
-//CHAT
-    socket.on("newUser", (usuario) => {
-        socket.broadcast.emit("userConnect", usuario );
-        socket.emit('connected')
-    })
-    socket.on("message", async (infoMessage) => {
-        await chatMana.createOne(infoMessage);
-        const allMessages = await chatMana.findAll();
-        socketServer.emit("chat", allMessages);
-    });
+const socketServer = new Server(httpServer);
+socketServer.on("connection", (socket) => {
+  socket.on("newMessage", async(message) => {
+    await chatMana.createOne(message)
+    const messages = await chatMana.findAll()
+    socketServer.emit("sendMessage", messages);
+  });
 
-    try {
-        const productosActualizados = await ProduManager.findAll(obj);
-        console.log(productosActualizados);
-        socketServer.emit('productosActualizados', productosActualizados);
+  socket.on("showProducts", async() => {
+    const products = await ProduManager.findAll({limit:10, page:1, sort:{}, query:{} })
+    socketServer.emit("sendProducts", products);
+  });
 
-        socket.on('agregado', async (nuevoProducto) => {
-            try {
-                const products = await ProduManager.createOne(nuevoProducto);
-                const productosActualizados = await ProduManager.findAll();
-                socketServer.emit('productosActualizados', productosActualizados);
-            } catch (error) {
-                console.error('Error al agregar el producto:', error);
-            }
-        });
-        socket.on('eliminar', async (id) => {
-            try {
-                const products = await ProduManager.deleteOne(id);
-                const productosActualizados = await ProduManager.findAll();
-                socketServer.emit('productosActualizados', productosActualizados);
-            } catch (error) {
-                console.error('Error al eliminar el producto:', error);
-            }
-        })
-    } catch (error) {
-        console.error("Error de conexión");
-    }
-    socket.on('disconnect', () => {
-        console.log('Un cliente se ha desconectado.');
-    });
-})
-    //PRODUCTOS
+  socket.on("newPrice", (value) => {
+    socket.broadcast.emit("priceUpdated", value);
+  });
+  socket.on("addProduct", async(product) => {
+    await ProduManager.addProduct(product.title,product.description,product.price,product.thumbnail,product.code,product.stock)
+    const products = await ProduManager.getProducts({})
+    socketServer.emit("productUpdated", products);
+  });
+
+  socket.on("deleteProduct", async(id) => {
+    await ProduManager.deleteProduct(+id)
+    const products = await ProduManager.getProducts({})
+    socketServer.emit("productUpdated", products);
+  });
+});
