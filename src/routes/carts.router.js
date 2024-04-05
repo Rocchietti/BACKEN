@@ -12,7 +12,6 @@ router.get("/", async (req, res) => {
         if (!carts || carts.length === 0) {
             return res.status(404).json({ message: "No carts found" });
         }
-
         res.status(200).json({ message: "Carts found", carts });
     } catch (error) {
         console.error(error); // Log the error for debugging

@@ -2,9 +2,7 @@ import { Router } from "express";
 import { ProduManager } from "../dao/manager/productmana.js";
 import { cartManager } from "../dao/manager/cartsmana.js";
 import { Users } from "../dao/manager/usermana.js";
-
 const router = Router ();
-
 router.get("/", async (req, res) => {
   try {
       const products = await ProduManager.findAll(req.query);
@@ -24,23 +22,26 @@ router.get("/login", (req, res) => {
 }
         res.render("login");
 });
-
+  
 router.get("/signup", (req, res) => {
         if (req.session.user){ 
         return res.redirect("/home", {user : req.session.user});
 }
         res.render("signup");
 });
-router.get("/carts/:cid", async(req,res)=>{
-    try {
-      const {cid} = req.params
-      const cart = await cartManager.findCartById(cid)
-      const products = cart.products
-      res.render("cart",{products: products})
-      console.log(products)
-    } catch (error) {
-      return error
-    }
-  });
+router.get('/carts/:cid', async (req, res) => {
+  const { cid } = req.params;
+  try {
+      const cart = await cartManager.findCartById(cid);
+      const cartProducts = cart.products.map(product => Object.assign({}, product._doc))
+      if (!cart) {
+          return res.status(404).send('Carrito no encontrado');
+      }
+      res.render('cart', { cart:cartProducts, style:"product" });
+  } catch (error) {
+      console.error(error);
+      res.status(500).send('Error interno del servidor');
+  }
+});
 
 export default router

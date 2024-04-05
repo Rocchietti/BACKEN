@@ -1,9 +1,7 @@
 import { Router } from "express";
 import { Users } from "../dao/manager/usermana.js";
 import { ProduManager } from "../dao/manager/productmana.js";
-
 const router = Router();
-
 router.post("/signup", async (req, res) => {
     const { name, last_name , email, password } = req.body;
     console.log(req.body);
@@ -37,6 +35,7 @@ const isPasswordValid = password === user.password
     {email, name:user.name, isAdmin: true}
     : {email, name:user.name, isAdmin: false} 
     req.session.user = sessionInfo
+    console.log(sessionInfo);
     const products = await ProduManager.findAll(req.query)
     res.render("home" , {products: products, user:req.session.user, style:"product"});
 } catch (error) {

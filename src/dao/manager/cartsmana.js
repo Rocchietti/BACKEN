@@ -1,5 +1,4 @@
 import { cartModel } from "../models/carts.model.js";
-
 class CartManager {
     async findAll() {
         const result = await cartModel.find();
@@ -11,7 +10,7 @@ class CartManager {
             return response 
         }
         async findCartById(idCart) {
-            const response = await cartModel.findById(idCart).populate('products.product', ["title", "description", "price", "code"]);
+            const response = await cartModel.findById(idCart).populate('products.product', ["title", "description", "price", "code"]).lean();
             console.log(response);
             return response
         }
@@ -53,7 +52,6 @@ class CartManager {
             if(productIndex !== -1) {
                 cart.products[productIndex].quantity= quantity;
             }else {
-                cart.products[productIndex]=quantity
                 cart.products.push({product:idProduct,quantity: quantity });
             }
             return cart.save()

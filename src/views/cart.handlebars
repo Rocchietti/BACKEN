@@ -1,8 +1,8 @@
 {{#each cart}}
-  <h2>{{products.title}}</h2>
-  <p>description:{{products.description}}</p>
-  <p> $:{{products.price}}</p>
-  <p> code:{{code}}</p>
-  <p> ID:{{products._id}}</p>
-  <p> quantity:{{quantity}}</p>
+  <h2>Título: {{cart.product}}</h2>
+  <p>Descripción: {{productos.description}}</p>
+  <p>Total $: {{cart.products.product.price}}</p>
+  <p>Code: {{cart.products.product.code}}</p>
+  <p>ID: {{products._id}}</p>
+  <p>Quantity: {{cart.products.quantity}}</p>
 {{/each}}
