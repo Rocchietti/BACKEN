@@ -14,12 +14,12 @@ import usersRouter from './routes/users.router.js'
 import cookieParser from 'cookie-parser';
 import session from 'express-session';
 import MongoStore from 'connect-mongo';
-
+import './public/js/passport.js'
+import passport from 'passport';
 //db
 import './db/configDB.js'
 
 const PORT = 8080;
-
 //express
 const app = express()
 app.use(express.urlencoded({ extended:true }));
@@ -43,6 +43,10 @@ app.use(session({
 }
 )
 )
+//passport 
+app.use(passport.initialize())
+app.use(passport.session())
+
 //req ---> params, query, body
 
 app.use("/api/productos", productsRouter);
@@ -51,12 +55,9 @@ app.use("/", viewsRouter);
 app.use("/api/session", sessionRouter);
 app.use("/api/users", usersRouter)
 app.use('/api/cookies', cookieRouter)
-
-
 const httpServer = app.listen(PORT, () => {
     console.log(`Escuchando al puerto ${PORT}`);
 })
-
 const socketServer = new Server(httpServer);
 socketServer.on("connection", (socket) => {
   socket.on("newMessage", async(message) => {
@@ -64,21 +65,22 @@ socketServer.on("connection", (socket) => {
     const messages = await chatMana.findAll()
     socketServer.emit("sendMessage", messages);
   });
-
   socket.on("showProducts", async() => {
     const products = await ProduManager.findAll({limit:10, page:1, sort:{}, query:{} })
     socketServer.emit("sendProducts", products);
   });
-
   socket.on("newPrice", (value) => {
     socket.broadcast.emit("priceUpdated", value);
+  });
+  socket.on("showProducts", async(req,res) => {
+    const products = await manager.getProducts({})
+    socket.emit("sendProducts", products);
   });
   socket.on("addProduct", async(product) => {
     await ProduManager.addProduct(product.title,product.description,product.price,product.thumbnail,product.code,product.stock)
     const products = await ProduManager.getProducts({})
     socketServer.emit("productUpdated", products);
   });
-
   socket.on("deleteProduct", async(id) => {
     await ProduManager.deleteProduct(+id)
     const products = await ProduManager.getProducts({})

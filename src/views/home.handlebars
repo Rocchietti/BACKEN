@@ -1,5 +1,5 @@
-  <div class="userDiv">
-        <h1>WELCOME {{user.name}}</h1>
+ <div class="userDiv">
+        <h1>WELCOME {{user.name}}, {{user.last_name}}</h1>
         <h4>Your email is: {{user.email}} </h4>
         <button><a href="/api/session/signout">SIGN OUT</a></button>
     </div>
@@ -8,6 +8,7 @@
   <p>Description: {{description}}</p>
   <p>Price $:{{price}}</p>
   <p>Code: {{code}}</p>
+  <p>Id Product: {{_id}}</p>
   <button class="add-to-cart-btn" data-product-id="{{_id}}" onclick="">Add to Cart</button>
 {{/each}}
 </div>
